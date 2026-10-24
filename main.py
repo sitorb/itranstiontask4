@@ -532,17 +532,20 @@ with overview_tab:
     with right:
         st.subheader("Daily revenue trend")
 
-        daily = result["daily_revenue"]
+        daily = result["daily_revenue"].copy()
 
         if daily.empty:
             st.info("No daily revenue data is available.")
         else:
-            fig, ax = plt.subplots(figsize=(9, 5))
+            daily["date"]=pd.to_datetime(daily["date"])
+            daily=daily.sort_values("date")
+            fig, ax = plt.subplots(figsize=(11, 4.5))
             ax.plot(
                 daily["date"],
                 daily["paid_price"],
+                color="#2878B5",
                 marker="o",
-                linewidth=2
+                linewidth=1.5
             )
             ax.set_title(f"{selected_store}: Daily Revenue")
             ax.set_xlabel("Date")
