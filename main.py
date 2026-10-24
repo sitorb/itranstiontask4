@@ -1,6 +1,7 @@
 from pathlib import Path
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from itertools import combinations
+from matplotlib.ticker import StrMethodFormatter
 import re 
 import pandas as pd
 import yaml
@@ -517,10 +518,48 @@ with overview_tab:
             )
 
             fig, ax = plt.subplots(figsize=(7, 4))
-            ax.bar(
-                result["top_days"]["date"],
-                result["top_days"]["paid_price"]
+            
+            chart_data = result["top_days"].copy()
+            chart_data = chart_data.sort_values("paid_price")
+
+            fig, ax = plt.subplots(figsize=(7, 4))
+
+            bars = ax.barh(
+                chart_data["date"].astype(str),
+                chart_data["paid_price"],
+                color="#2878B5",
+                height=0.65
             )
+
+            ax.set_title(
+                "Top 5 Days by Revenue",
+                fontsize=13,
+                fontweight="bold"
+            )
+            ax.set_xlabel("Revenue (USD)")
+            ax.set_ylabel("Date")
+            ax.xaxis.set_major_formatter(
+                StrMethodFormatter("${x:,.0f}")
+            )
+            ax.bar_label(
+                bars,
+                labels=[
+                    f"${value:,.2f}"
+                    for value in chart_data["paid_price"]
+                ],
+                padding=4,
+                fontsize=9
+            )
+
+            ax.spines["top"].set_visible(False)
+            ax.spines["right"].set_visible(False)
+            ax.grid(axis="x", alpha=0.2)
+            ax.set_axisbelow(True)
+
+            fig.tight_layout()
+            st.pyplot(fig, use_container_width=True)
+            plt.close(fig)
+
             ax.set_title("Top 5 Revenue Days")
             ax.set_xlabel("Date")
             ax.set_ylabel("Revenue (USD)")
