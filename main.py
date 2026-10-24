@@ -529,6 +529,7 @@ with overview_tab:
             st.pyplot(fig)
             plt.close(fig)
 
+   
     with right:
         st.subheader("Daily revenue trend")
 
@@ -537,23 +538,43 @@ with overview_tab:
         if daily.empty:
             st.info("No daily revenue data is available.")
         else:
-            daily["date"]=pd.to_datetime(daily["date"])
-            daily=daily.sort_values("date")
+            daily["date"] = pd.to_datetime(daily["date"])
+            daily = daily.sort_values("date")
+
             fig, ax = plt.subplots(figsize=(11, 4.5))
             ax.plot(
                 daily["date"],
                 daily["paid_price"],
                 color="#2878B5",
-                marker="o",
                 linewidth=1.5
             )
-            ax.set_title(f"{selected_store}: Daily Revenue")
-            ax.set_xlabel("Date")
-            ax.set_ylabel("Revenue (USD)")
-            ax.grid(True, alpha=0.3)
-            fig.autofmt_xdate(rotation=35)
+
+            ax.set_title(
+                f"{selected_store} — Daily Revenue",
+                fontsize=14,
+                fontweight="bold",
+                pad=14
+            )
+            ax.set_xlabel("Date", labelpad=10)
+            ax.set_ylabel("Revenue (USD)", labelpad=10)
+            import matplotlib.dates as mdates
+
+            locator = mdates.AutoDateLocator(minticks=5, maxticks=10)
+            ax.xaxis.set_major_locator(locator)
+            ax.xaxis.set_major_formatter(
+                mdates.ConciseDateFormatter(locator)
+            )
+            from matplotlib.ticker import StrMethodFormatter
+            ax.yaxis.set_major_formatter(
+                StrMethodFormatter("${x:,.0f}")
+            )
+
+            ax.grid(axis="y", alpha=0.25)
+            ax.spines["top"].set_visible(False)
+            ax.spines["right"].set_visible(False)
+
             fig.tight_layout()
-            st.pyplot(fig)
+            st.pyplot(fig, use_container_width=True)
             plt.close(fig)
 
             with st.expander("View daily revenue data"):
@@ -568,8 +589,6 @@ with overview_tab:
                     hide_index=True,
                     use_container_width=True
                 )
-
-
 
 with authors_tab:
     st.subheader("Most popular author set")
